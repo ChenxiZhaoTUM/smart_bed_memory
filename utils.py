@@ -68,6 +68,7 @@ def imageOut(filename, _input, _output, _target, max_val, min_val, saveTargets=F
 
     save_path = os.path.join(filename)
     plt.savefig(save_path)
+    plt.close(fig)
 
     if saveTargets:
         target = np.copy(_target)
@@ -87,6 +88,8 @@ def imageOut(filename, _input, _output, _target, max_val, min_val, saveTargets=F
 
         save_path2 = filename + "_target.png"
         plt.savefig(save_path2)
+
+        plt.close(fig)
 
 
 def log(file, line, doPrint=True):

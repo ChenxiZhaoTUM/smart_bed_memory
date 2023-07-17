@@ -247,17 +247,6 @@ class TurbDataset(Dataset):
         # load & normalize data
         self = loader_normalizer(self, shuffle=shuffle)
 
-        ######### test code ########
-        # for common_data_id, data in self.common_data.items():
-        #     time = data['time']
-        #     input_data = data['input_data']
-        #     target_data = data['target_data']
-        #
-        #     print(f"Common Data ID: {common_data_id}")
-        #     print(f"Time: {time}")
-        #     # print(f"Input Data: {input_data}")
-        #     # print(f"Target Data: {target_data}")
-        #     print()
 
         self.totalLength = len(self.common_data)
         if not self.mode == self.TEST:
@@ -283,9 +272,6 @@ class TurbDataset(Dataset):
             self.valiLength = self.totalLength - targetLength
             self.totalLength = targetLength
 
-            ######### test code ########
-            # print(len(self.valiTargets))
-
         else:
             self.testInputs = []
             self.testTargets = []
@@ -304,11 +290,6 @@ class TurbDataset(Dataset):
 
     def denormalize(self, np_array):
         denormalized_data = np_array * (self.target_max - self.target_min) + self.target_min
-
-        ######### test code ########
-        # print(denormalized_data)
-        # print(self.target_max)
-        # print(self.target_min)
 
         return denormalized_data
 

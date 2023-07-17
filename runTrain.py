@@ -12,9 +12,9 @@ import utils
 
 ######## Settings ########
 # number of training iterations
-iterations = 100
+iterations = 10000
 # batch size
-batch_size = 5
+batch_size = 50
 # learning rate, generator
 lrG = 0.0006
 # decay learning rate?
