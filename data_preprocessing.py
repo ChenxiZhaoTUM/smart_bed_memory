@@ -115,13 +115,16 @@ def reshape_output_value(value_arr):
     return new_reshape_value_arr
 
 
-def save_data_from_files(data, isTest=False):
+def save_data_from_files(data, isTest=False, shuffle=2):
     if isTest:
         folder_path = data.dataDirTest
         file_names = os.listdir(data.dataDirTest)
     else:
         folder_path = data.dataDir
         file_names = os.listdir(data.dataDir)
+
+    for i in range(shuffle):
+        random.shuffle(file_names)
 
     all_common_data = {}
     print()
@@ -181,7 +184,7 @@ def save_data_from_files(data, isTest=False):
 
 
 ######## data normalization ########
-def loader_normalizer(data, shuffle=2):
+def loader_normalizer(data):
     if removePOffset:
         input_data_values = [value['input_data'] for value in data.common_data.values() if
                              len(value['input_data']) > 0]
@@ -211,8 +214,6 @@ def loader_normalizer(data, shuffle=2):
             print("Min Pressure:" + str(data.target_min))
 
     values = list(data.common_data.values())
-    # # for i in range(shuffle):
-    # random.shuffle(values)
 
     for id, value in enumerate(values):
         data.common_data[id] = value
@@ -220,7 +221,7 @@ def loader_normalizer(data, shuffle=2):
     return data
 
 
-class TurbDataset(Dataset):
+class PressureDataset(Dataset):
     TRAIN = 0
     TEST = 2
 
@@ -245,7 +246,7 @@ class TurbDataset(Dataset):
         self = save_data_from_files(self, isTest=(mode == self.TEST))
 
         # load & normalize data
-        self = loader_normalizer(self, shuffle=shuffle)
+        self = loader_normalizer(self)
 
 
         self.totalLength = len(self.common_data)
@@ -300,7 +301,7 @@ class TurbDataset(Dataset):
 
 
 # simplified validation data set (main one is TurbDataset above)
-class ValiDataset(TurbDataset):
+class ValiDataset(PressureDataset):
     def __init__(self, dataset):
         self.inputs = dataset.valiInputs
         self.targets = dataset.valiTargets

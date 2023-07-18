@@ -49,7 +49,7 @@ np.random.seed(seed)
 torch.manual_seed(seed)
 
 # create pytorch data object with dataset
-data = dp.TurbDataset()
+data = dp.PressureDataset()
 trainLoader = DataLoader(data, batch_size=batch_size, shuffle=True, drop_last=True)
 print("Training batches: {}".format(len(trainLoader)))
 dataValidation = dp.ValiDataset(data)
@@ -77,8 +77,8 @@ inputs = Variable(torch.FloatTensor(batch_size, 20, 1, 1))
 targets = Variable(torch.FloatTensor(batch_size, 1, 32, 64))
 
 ##########################
-with open('output.txt', 'w') as file:
-    pass
+# with open('output.txt', 'w') as file:
+#     pass
 
 for epoch in range(epochs):
     print("Starting epoch {} / {}".format((epoch + 1), epochs))
@@ -138,31 +138,31 @@ for epoch in range(epochs):
         outputs_denormalized = data.denormalize(outputs_cpu)
 
         ######### test code ########
-        inputs_list = inputs_denormalized.tolist()
-        targets_list = targets_denormalized.tolist()
-        outputs_list = outputs_denormalized.tolist()
-
-        with open('output.txt', 'a') as file:
-            file.write('Inputs:\n')
-            for item in inputs_list:
-                file.write(str(item))
-                file.write('\n')
-
-            file.write('Targets:\n')
-            for item in targets_list:
-                file.write(str(item))
-                file.write('\n')
-
-            file.write('Outputs:\n')
-            for item in outputs_list:
-                file.write(str(item))
-                file.write('\n')
-
+        # inputs_list = inputs_denormalized.tolist()
+        # targets_list = targets_denormalized.tolist()
+        # outputs_list = outputs_denormalized.tolist()
+        #
+        # with open('output.txt', 'a') as file:
+        #     file.write('Inputs:\n')
+        #     for item in inputs_list:
+        #         file.write(str(item))
+        #         file.write('\n')
+        #
+        #     file.write('Targets:\n')
+        #     for item in targets_list:
+        #         file.write(str(item))
+        #         file.write('\n')
+        #
+        #     file.write('Outputs:\n')
+        #     for item in outputs_list:
+        #         file.write(str(item))
+        #         file.write('\n')
+        #
         for j in range(batch_size):
             utils.makeDirs(["results_train"])
             utils.imageOut("results_train/epoch{}_{}_{}".format(epoch, i, j), inputs_denormalized[j],
                            outputs_denormalized[j], targets_denormalized[j], data.target_max, data.target_min,
-                           saveTargets=True)
+                           saveTargets=False)
 
     # data for graph plotting
     L1_accum /= len(trainLoader)
