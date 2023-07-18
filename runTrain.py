@@ -9,12 +9,13 @@ import torch.optim as optim
 from GeneratorNet import weights_init, ConvTransposeNet, ConvNet
 import data_preprocessing as dp
 import utils
+import matplotlib.pyplot as plt
 
 ######## Settings ########
 # number of training iterations
-iterations = 100
+iterations = 1000
 # batch size
-batch_size = 5
+batch_size = 50
 # learning rate, generator
 lrG = 0.0006
 # decay learning rate?
@@ -77,8 +78,8 @@ inputs = Variable(torch.FloatTensor(batch_size, 20, 1, 1))
 targets = Variable(torch.FloatTensor(batch_size, 1, 32, 64))
 
 ##########################
-# with open('output.txt', 'w') as file:
-#     pass
+with open('output.txt', 'w') as file:
+    pass
 
 for epoch in range(epochs):
     print("Starting epoch {} / {}".format((epoch + 1), epochs))
@@ -135,32 +136,58 @@ for epoch in range(epochs):
         targets_denormalized = data.denormalize(targets_cpu.cpu().numpy())
         outputs_denormalized = data.denormalize(outputs_cpu)
 
+        inputs_plot = torch.from_numpy(inputs_denormalized)
+        targets_plot = torch.from_numpy(targets_denormalized)
+        outputs_plot = torch.from_numpy(outputs_denormalized)
+
+        # if epoch % 5 == 0:
+        #     for j in range(batch_size):
+        #         plt.figure(figsize=(10, 10))
+        #
+        #         plt.subplot(1, 3, 1)
+        #         plt.title('Input Image')
+        #         plt.imshow(inputs_plot[j, -8:, ], aspect='auto', cmap='viridis')
+        #         plt.axis('off')
+        #
+        #         plt.subplot(1, 3, 2)
+        #         plt.title('Target Image')
+        #         plt.imshow(targets_plot[j].permute(1, 2, 0))
+        #         plt.axis('off')
+        #
+        #         plt.subplot(1, 3, 3)
+        #         plt.title('Output Image')
+        #         plt.imshow(outputs_plot[j].permute(1, 2, 0))
+        #         plt.axis('off')
+        #
+        #         plt.show()
+
         ######### test code ########
-        # inputs_list = inputs_denormalized.tolist()
-        # targets_list = targets_denormalized.tolist()
-        # outputs_list = outputs_denormalized.tolist()
-        #
-        # with open('output.txt', 'a') as file:
-        #     file.write('Inputs:\n')
-        #     for item in inputs_list:
-        #         file.write(str(item))
-        #         file.write('\n')
-        #
-        #     file.write('Targets:\n')
-        #     for item in targets_list:
-        #         file.write(str(item))
-        #         file.write('\n')
-        #
-        #     file.write('Outputs:\n')
-        #     for item in outputs_list:
-        #         file.write(str(item))
-        #         file.write('\n')
-        #
-        for j in range(batch_size):
-            utils.makeDirs(["results_train"])
-            utils.imageOut("results_train/epoch{}_{}_{}".format(epoch, i, j), inputs_denormalized[j],
-                           outputs_denormalized[j], targets_denormalized[j], data.target_max, data.target_min,
-                           saveTargets=False)
+        if epoch == epochs - 1:
+            inputs_list = inputs_denormalized.tolist()
+            targets_list = targets_denormalized.tolist()
+            outputs_list = outputs_denormalized.tolist()
+
+            with open('output.txt', 'a') as file:
+                file.write('Inputs:\n')
+                for item in inputs_list:
+                    file.write(str(item))
+                    file.write('\n')
+
+                file.write('Targets:\n')
+                for item in targets_list:
+                    file.write(str(item))
+                    file.write('\n')
+
+                file.write('Outputs:\n')
+                for item in outputs_list:
+                    file.write(str(item))
+                    file.write('\n')
+
+            for j in range(batch_size):
+                utils.makeDirs(["results_train"])
+                utils.imageOut("results_train/epoch{}_{}_{}".format(epoch, i, j), inputs_denormalized[j],
+                               outputs_denormalized[j], targets_denormalized[j], data.target_max, data.target_min,
+                               saveTargets=False)
 
     # data for graph plotting
     L2_accum /= len(trainLoader)

@@ -1,9 +1,6 @@
 import math, re, os
 import numpy as np
-from PIL import Image
-from matplotlib import cm
 import matplotlib.pyplot as plt
-from matplotlib import colors
 
 
 # compute learning rate with decay in second half
@@ -23,30 +20,6 @@ def makeDirs(directoryList):
     for directory in directoryList:
         if not os.path.exists(directory):
             os.makedirs(directory)
-
-
-# def imageOut(filename, _input, _output, _target, max, min, saveTargets=False):
-#     output = np.copy(_output)
-#     fig, ax = plt.subplots()
-#
-#     ax.set_aspect('equal', 'box')
-#     output_image = np.reshape(output, (32, 64))
-#     im = ax.imshow(output_image, cmap='jet', vmin=min, vmax=max)
-#     ax.axis('off')
-#     cbar = plt.colorbar(im)
-#
-#     save_path = os.path.join(filename)
-#     plt.savefig(save_path)
-#
-#     if saveTargets:
-#         target = np.copy(_target)
-#
-#         target_image = np.reshape(target, (32, 64))
-#         im2 = ax.imshow(target_image, cmap='jet', vmin=min, vmax=max)
-#         # ax2.axis('off')
-#
-#         save_path2 = filename + "_target.png"
-#         plt.savefig(save_path2)
 
 
 def imageOut(filename, _input, _output, _target, max_val, min_val, saveTargets=False):
