@@ -12,9 +12,9 @@ import utils
 
 ######## Settings ########
 # number of training iterations
-iterations = 10000
+iterations = 100
 # batch size
-batch_size = 50
+batch_size = 5
 # learning rate, generator
 lrG = 0.0006
 # decay learning rate?
@@ -24,7 +24,7 @@ expo = 4
 # data set config
 prop = None  # by default, use all from "./dataset/for_train"
 # save txt files with per epoch loss?
-saveL1 = False
+saveL2 = True
 
 ##########################
 
@@ -70,7 +70,7 @@ if len(doLoad) > 0:
     netG.load_state_dict(torch.load(doLoad))
     print("Loaded model " + doLoad)
 
-criterionL1 = nn.L1Loss()
+criterionL2 = nn.MSELoss()
 optimizerG = optim.Adam(netG.parameters(), lr=lrG, betas=(0.5, 0.999), weight_decay=0.0)
 
 inputs = Variable(torch.FloatTensor(batch_size, 20, 1, 1))
@@ -84,7 +84,7 @@ for epoch in range(epochs):
     print("Starting epoch {} / {}".format((epoch + 1), epochs))
 
     netG.train()
-    L1_accum = 0.0
+    L2_accum = 0.0
     for i, traindata in enumerate(trainLoader, 0):
         inputs_cpu, targets_cpu = traindata
         inputs_cpu = inputs_cpu.unsqueeze(2).unsqueeze(3)
@@ -102,21 +102,21 @@ for epoch in range(epochs):
         netG.zero_grad()
         gen_out = netG(inputs)
 
-        lossL1 = criterionL1(gen_out, targets)
-        lossL1.backward()
+        lossL2 = criterionL2(gen_out, targets)
+        lossL2.backward()
 
         optimizerG.step()
 
-        lossL1viz = lossL1.item()
-        L1_accum += lossL1viz
+        lossL2viz = lossL2.item()
+        L2_accum += lossL2viz
 
         if i == len(trainLoader) - 1:
-            logline = "Epoch: {}, batch-idx: {}, L1: {}\n".format(epoch, i, lossL1viz)
+            logline = "Epoch: {}, batch-idx: {}, L2: {}\n".format(epoch, i, lossL2viz)
             print(logline)
 
     # validation
     netG.eval()
-    L1val_accum = 0.0
+    L2val_accum = 0.0
     for i, validata in enumerate(valiLoader, 0):
         inputs_cpu, targets_cpu = validata
         inputs_cpu = inputs_cpu.unsqueeze(2).unsqueeze(3)
@@ -127,11 +127,9 @@ for epoch in range(epochs):
         outputs = netG(inputs)
         outputs_cpu = outputs.data.cpu().numpy()
 
-        lossL1 = criterionL1(outputs, targets)
-        L1val_accum += lossL1.item()
+        lossL2 = criterionL2(outputs, targets)
+        L2val_accum += lossL2.item()
 
-        # print(i)  # 0 1
-        # print(inputs_cpu)
         inputs_denormalized = data.denormalizeInput(inputs_cpu.cpu())
         inputs_denormalized = inputs_denormalized.numpy()
         targets_denormalized = data.denormalize(targets_cpu.cpu().numpy())
@@ -165,13 +163,13 @@ for epoch in range(epochs):
                            saveTargets=False)
 
     # data for graph plotting
-    L1_accum /= len(trainLoader)
-    L1val_accum /= len(valiLoader)
-    if saveL1:
+    L2_accum /= len(trainLoader)
+    L2val_accum /= len(valiLoader)
+    if saveL2:
         if epoch == 0:
-            utils.resetLog(prefix + "L1.txt")
-            utils.resetLog(prefix + "L1val.txt")
-        utils.log(prefix + "L1.txt", "{} ".format(L1_accum), False)
-        utils.log(prefix + "L1val.txt", "{} ".format(L1val_accum), False)
+            utils.resetLog(prefix + "L2.txt")
+            utils.resetLog(prefix + "L2val.txt")
+        utils.log(prefix + "L2.txt", "{} ".format(L2_accum), False)
+        utils.log(prefix + "L2val.txt", "{} ".format(L2val_accum), False)
 
 torch.save(netG.state_dict(), prefix + "modelG")
