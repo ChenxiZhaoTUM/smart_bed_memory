@@ -69,12 +69,16 @@ netG.apply(weights_init)
 if len(doLoad) > 0:
     netG.load_state_dict(torch.load(doLoad))
     print("Loaded model " + doLoad)
+netG.cuda()
 
 criterionL1 = nn.L1Loss()
+criterionL1.cuda()
 optimizerG = optim.Adam(netG.parameters(), lr=lrG, betas=(0.5, 0.999), weight_decay=0.0)
 
 inputs = Variable(torch.FloatTensor(batch_size, 20, 1, 1))
 targets = Variable(torch.FloatTensor(batch_size, 1, 32, 64))
+inputs.cuda()
+targets.cuda()
 
 ##########################
 # with open('output.txt', 'w') as file:
@@ -89,8 +93,10 @@ for epoch in range(epochs):
         inputs_cpu, targets_cpu = traindata
         inputs_cpu = inputs_cpu.unsqueeze(2).unsqueeze(3)
         targets_cpu = targets_cpu.unsqueeze(1)
-        inputs.data.copy_(inputs_cpu.float())
-        targets.data.copy_(targets_cpu.float())
+        inputs_cpu = inputs_cpu.float().cuda()
+        targets_cpu = targets_cpu.float().cuda()
+        inputs.data.resize_as_(inputs_cpu).copy_(inputs_cpu)
+        targets.data.resize_as_(targets_cpu).copy_(targets_cpu)
 
         # compute LR decay
         if decayLr:

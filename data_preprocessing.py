@@ -248,7 +248,6 @@ class PressureDataset(Dataset):
         # load & normalize data
         self = loader_normalizer(self)
 
-
         self.totalLength = len(self.common_data)
         if not self.mode == self.TEST:
             # split for train/validation sets (80/20) , max 400

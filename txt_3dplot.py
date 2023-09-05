@@ -5,7 +5,7 @@ import matplotlib.dates as mdates
 from datetime import datetime
 import numpy as np
 
-folder_path = "dataset"
+folder_path = "dataset/for_train"
 file_names = os.listdir(folder_path)
 
 
