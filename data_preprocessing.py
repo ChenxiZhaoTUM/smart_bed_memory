@@ -251,7 +251,7 @@ class PressureDataset(Dataset):
         self.totalLength = len(self.common_data)
         if not self.mode == self.TEST:
             # split for train/validation sets (80/20) , max 400
-            targetLength = self.totalLength - min(int(self.totalLength * 0.2), 400)
+            targetLength = self.totalLength
 
             self.inputs = []
             self.targets = []

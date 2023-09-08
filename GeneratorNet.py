@@ -42,12 +42,33 @@ class DeepConvTransposeNet(nn.Module):
         self.conv6 = nn.ConvTranspose2d(8, 1, kernel_size=4, stride=2, padding=1, bias=True)
 
     def forward(self, x):
-        out1 = self.conv1(x)
-        out2 = self.conv2(out1)
-        out3 = self.conv3(out2)
-        out4 = self.conv4(out3)
-        out5 = self.conv5(out4)
-        out6 = self.conv6(out5)
+        out1 = self.conv1(x)  # torch.Size([1, 32, 2, 2])
+        out2 = self.conv2(out1)  # torch.Size([1, 64, 4, 4])
+        out3 = self.conv3(out2)  # torch.Size([1, 32, 8, 8])
+        out4 = self.conv4(out3)  # torch.Size([1, 16, 8, 16])
+        out5 = self.conv5(out4)  # torch.Size([1, 8, 16, 32])
+        out6 = self.conv6(out5)  # torch.Size([1, 1, 32, 64])
+        return out6
+
+
+class DeepConvTransposeNet2(nn.Module):
+    def __init__(self):
+        super(DeepConvTransposeNet2, self).__init__()
+
+        self.conv1 = nn.ConvTranspose2d(20, 32, kernel_size=4, stride=2, padding=1, bias=True)
+        self.conv2 = nn.ConvTranspose2d(32, 64, kernel_size=4, stride=2, padding=1, bias=True)
+        self.conv3 = nn.ConvTranspose2d(64, 32, kernel_size=6, stride=2, padding=2, bias=True)
+        self.conv4 = nn.ConvTranspose2d(32, 16, kernel_size=(4, 6), stride=2, padding=(5, 2), bias=True)
+        self.conv5 = nn.ConvTranspose2d(16, 8, kernel_size=4, stride=2, padding=1, bias=True)
+        self.conv6 = nn.ConvTranspose2d(8, 1, kernel_size=4, stride=2, padding=1, bias=True)
+
+    def forward(self, x):
+        out1 = self.conv1(x)  # torch.Size([1, 32, 2, 2])
+        out2 = self.conv2(out1)  # torch.Size([1, 64, 4, 4])
+        out3 = self.conv3(out2)  # torch.Size([1, 32, 8, 8])
+        out4 = self.conv4(out3)  # torch.Size([1, 16, 8, 16])
+        out5 = self.conv5(out4)  # torch.Size([1, 8, 16, 32])
+        out6 = self.conv6(out5)  # torch.Size([1, 1, 32, 64])
         return out6
 
 
@@ -102,7 +123,7 @@ class ConvNet(nn.Module):
 
 
 # test
-model = DeepConvTransposeNet()
+model = DeepConvTransposeNet2()
 input_tensor = torch.randn(1, 20, 1, 1)
 output_tensor = model(input_tensor)
 print(output_tensor.size())

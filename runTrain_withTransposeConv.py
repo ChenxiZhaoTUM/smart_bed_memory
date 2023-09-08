@@ -6,7 +6,7 @@ from torch.autograd import Variable
 from torch.utils.data import DataLoader
 import torch.optim as optim
 
-from GeneratorNet import weights_init, DeepConvTransposeNet
+from GeneratorNet import weights_init, DeepConvTransposeNet2
 import data_preprocessing as dp
 import utils
 
@@ -58,7 +58,7 @@ print("Validation batches: {}".format(len(valiLoader)))
 
 # setup training
 epochs = int(iterations / len(trainLoader) + 0.5)
-netG = DeepConvTransposeNet()
+netG = DeepConvTransposeNet2()
 print(netG)  # print full net
 model_parameters = filter(lambda p: p.requires_grad, netG.parameters())
 params = sum([np.prod(p.size()) for p in model_parameters])
@@ -120,7 +120,7 @@ for epoch in range(epochs):
         targets_denormalized = data.denormalize(targets_cpu.cpu().numpy())
         outputs_denormalized = data.denormalize(gen_out_cpu)
 
-        if lossL1viz < 0.02:
+        if lossL1viz < 0.022:
             for j in range(batch_size):
                 utils.makeDirs(["train_results"])
                 utils.imageOut("train_results/epoch{}_{}_{}".format(epoch, i, j), inputs_denormalized[j],
