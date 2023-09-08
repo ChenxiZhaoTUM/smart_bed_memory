@@ -30,7 +30,29 @@ class ConvTransposeNet(nn.Module):
         return out4
 
 
-def blockUNet(in_c, out_c, name, transposed=False, bn=True, relu=True, factor=2, size=3, stride=(1, 1), pad=1, dropout=0.):
+class DeepConvTransposeNet(nn.Module):
+    def __init__(self):
+        super(DeepConvTransposeNet, self).__init__()
+
+        self.conv1 = nn.ConvTranspose2d(20, 32, kernel_size=2, stride=2, padding=0, bias=True)
+        self.conv2 = nn.ConvTranspose2d(32, 64, kernel_size=2, stride=2, padding=0, bias=True)
+        self.conv3 = nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1, bias=True)
+        self.conv4 = nn.ConvTranspose2d(32, 16, kernel_size=(5, 4), stride=(1, 2), padding=(2, 1), bias=True)
+        self.conv5 = nn.ConvTranspose2d(16, 8, kernel_size=4, stride=2, padding=1, bias=True)
+        self.conv6 = nn.ConvTranspose2d(8, 1, kernel_size=4, stride=2, padding=1, bias=True)
+
+    def forward(self, x):
+        out1 = self.conv1(x)
+        out2 = self.conv2(out1)
+        out3 = self.conv3(out2)
+        out4 = self.conv4(out3)
+        out5 = self.conv5(out4)
+        out6 = self.conv6(out5)
+        return out6
+
+
+def blockUNet(in_c, out_c, name, transposed=False, bn=True, relu=True, factor=2, size=3, stride=(1, 1), pad=1,
+              dropout=0.):
     block = nn.Sequential()
 
     if relu:
@@ -39,7 +61,8 @@ def blockUNet(in_c, out_c, name, transposed=False, bn=True, relu=True, factor=2,
         block.add_module('%s_leakyrelu' % name, nn.LeakyReLU(0.2, inplace=True))
 
     if not transposed:
-        block.add_module('%s_conv' % name, nn.Conv2d(in_c, out_c, kernel_size=size, stride=stride, padding=pad, bias=True))
+        block.add_module('%s_conv' % name,
+                         nn.Conv2d(in_c, out_c, kernel_size=size, stride=stride, padding=pad, bias=True))
     else:
         block.add_module('%s_upsam' % name,
                          nn.Upsample(scale_factor=factor, mode='bilinear'))
@@ -79,7 +102,7 @@ class ConvNet(nn.Module):
 
 
 # test
-# model = ConvNet()
-# input_tensor = torch.randn(1, 20, 1, 1)
-# output_tensor = model(input_tensor)
-# print(output_tensor.size())
+model = DeepConvTransposeNet()
+input_tensor = torch.randn(1, 20, 1, 1)
+output_tensor = model(input_tensor)
+print(output_tensor.size())
