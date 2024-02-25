@@ -227,7 +227,7 @@ class PressureDataset(Dataset):
     TRAIN = 0
     TEST = 2
 
-    def __init__(self, mode=TRAIN, dataDir="./dataset/for_train", dataDirTest="./dataset/for_test/",
+    def __init__(self, mode=TRAIN, dataDir="/home/yyc/chenxi/smart_bed_memory/dataset/for_train", dataDirTest="./dataset/for_test/",
                  shuffle=0):
         global removePOffset, pressureNormalization
         """
@@ -290,6 +290,36 @@ class PressureDataset(Dataset):
     # def __getitem__(self, idx):
     #     return self.inputs[idx], self.targets[idx]
 
+    # def __getitem__(self, idx):
+    #     input_data = self.inputs[idx]
+    #     target_data = self.targets[idx]
+
+    #     new_input_data = torch.zeros(13, 32, 64)
+
+    #     for i in range(12):
+    #         new_input_data[i, :, :] = input_data[i]
+
+    #     # torch.set_printoptions(profile="full")
+
+    #     for i in range(8):
+    #         # print(input_data[12 + i])
+    #         # new_input_data[12, :, i * 8: (i + 1) * 8] = input_data[12 + i]
+    #         new_input_data[12, :, i * 8: (i + 1) * 8] = input_data[19 - i]
+    #         # new_input_data[12, :, i * 8 : (i + 1) * 8] = input_data[12 + i]
+    #         # print(new_input_data[12, :, :])
+
+    #     # print("input_data shape:", input_data.shape)
+    #     # print("new_input_data shape:", new_input_data.shape)
+    #     # print("new_input_data content:", new_input_data)
+    #     # print(new_input_data)
+
+    #     new_target_data = torch.zeros(1, 32, 64)
+
+    #     for i in range(64): 
+    #         new_target_data[0, :, i] = target_data[63 - i]
+            
+    #     return new_input_data, new_target_data
+    
     def __getitem__(self, idx):
         input_data = self.inputs[idx]
         target_data = self.targets[idx]
@@ -299,23 +329,10 @@ class PressureDataset(Dataset):
         for i in range(12):
             new_input_data[i, :, :] = input_data[i]
 
-        torch.set_printoptions(profile="full")
-
         for i in range(8):
-            # print(input_data[12 + i])
-            # new_input_data[12, :, i * 8: (i + 1) * 8] = input_data[12 + i]
-            new_input_data[12, :, i * 8: (i + 1) * 8] = input_data[19 - i]
-            # print(new_input_data[12, :, :])
-
-        # print("input_data shape:", input_data.shape)
-        # print("new_input_data shape:", new_input_data.shape)
-        # print("new_input_data content:", new_input_data)
-
-        # print(new_input_data)
-
-        # print(torch.from_numpy(target_data).size())  # torch.Size([32, 64])
-
-        return new_input_data, torch.from_numpy(target_data)
+            new_input_data[12, :, i * 8 : (i + 1) * 8] = input_data[12 + i]
+            
+        return new_input_data, target_data
 
     def denormalize(self, np_array):
         denormalized_data = np_array * (self.target_max - self.target_min) + self.target_min

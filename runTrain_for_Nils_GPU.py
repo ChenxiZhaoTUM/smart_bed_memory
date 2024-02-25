@@ -24,7 +24,7 @@ lrG = 0.0006
 # decay learning rate?
 decayLr = True
 # channel exponent to control network size
-expo = 4
+expo = 3
 # data set config
 prop = None  # by default, use all from "./dataset/for_train"
 # save txt files with per epoch loss?
@@ -32,13 +32,13 @@ saveL1 = True
 
 ##########################
 
-prefix = "Nils_for_pressure_7"
+prefix = "expo3_Nils_for_pressure_2_"
 if len(sys.argv) > 1:
     prefix = sys.argv[1]
     print("Output prefix: {}".format(prefix))
 
 dropout = 0
-doLoad = "/home/yyc/chenxi/Nils_for_pressure_6_modelG"  # optional, path to pre-trained model
+doLoad = ""  # optional, path to pre-trained model
 
 print("LR: {}".format(lrG))
 print("LR decay: {}".format(decayLr))
@@ -130,15 +130,15 @@ for epoch in range(epochs):
         targets_denormalized = data.denormalize(targets_cpu.cpu().numpy())
         outputs_denormalized = data.denormalize(gen_out_cpu)
 
-        if lossL1viz < 0.0053:
+        if lossL1viz < 0.006:
             for j in range(batch_size):
-                utils.makeDirs(["train_results_last2batch_for_Nils_0.0053"])
-                utils.imageOut("train_results_last2batch_for_Nils_0.0053/epoch{}_{}_{}".format(epoch, i, j), inputs_denormalized[j],
+                utils.makeDirs(["train_results_expo3_0.006"])
+                utils.imageOut("train_results_expo3_0.006/epoch{}_{}_{}".format(epoch, i, j), inputs_denormalized[j],
                                outputs_denormalized[j], targets_denormalized[j], data.target_max, data.target_min,
                                saveTargets=True)
             torch.save(netG.state_dict(), prefix + "modelG")
 
-        if lossL1viz < 0.006:
+        if lossL1viz < 0.009:
             torch.save(netG.state_dict(), prefix + "modelG")
 
     # validation

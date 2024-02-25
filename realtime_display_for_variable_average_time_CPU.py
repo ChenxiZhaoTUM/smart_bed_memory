@@ -17,19 +17,18 @@ def parse_time_string(time_string):
 def format_time_string(time):
     return time.strftime("%H:%M:%S")
 
-
 def format_time_string_half_second(time):
     return time.strftime("%H:%M:%S.%f")
 
 
 def round_to_nearest_half_second_down(time_obj):
+
     if time_obj.microsecond >= 500000:
         time_obj = time_obj.replace(microsecond=500000)
     else:
         time_obj = time_obj.replace(microsecond=0)
 
     return time_obj
-
 
 def average_by_sec(required_time, time_arr, value_arr):
     time_objs = [parse_time_string(time_str) for time_str in time_arr]

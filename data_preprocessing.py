@@ -49,7 +49,7 @@ def average_by_sec(time_arr, value_arr):
 
 ######## save data in arrays ########
 def deal_with_txt_files(file_path):
-    with open(file_path, 'r',  errors='ignore') as file:
+    with open(file_path, 'r', errors='ignore') as file:
         lines = file.readlines()
 
         time_arr_txt = []
@@ -225,7 +225,7 @@ class PressureDataset(Dataset):
     TRAIN = 0
     TEST = 2
 
-    def __init__(self, mode=TRAIN, dataDir="./dataset/for_train/", dataDirTest="./dataset/for_test/",
+    def __init__(self, mode=TRAIN, dataDir="/home/yyc/chenxi/smart_bed_memory/dataset/for_train", dataDirTest="./dataset/for_test/",
                  shuffle=0):
         global removePOffset, pressureNormalization
         """

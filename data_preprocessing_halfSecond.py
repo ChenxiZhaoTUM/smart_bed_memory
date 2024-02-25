@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 import numpy as np
 from torch.utils.data import Dataset
+import torch
 
 np.set_printoptions(threshold=np.inf)
 pressureNormalization = True
@@ -57,7 +58,7 @@ def average_by_half_second(time_arr, value_arr):
 
 ######## save data in arrays ########
 def deal_with_txt_files(file_path):
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r', errors='ignore') as file:
         lines = file.readlines()
 
         time_arr_txt = []
@@ -92,7 +93,7 @@ def deal_with_txt_files(file_path):
 
 
 def deal_with_csv_files(csv_file_path):
-    with open(csv_file_path, 'r') as file:
+    with open(csv_file_path, 'r', errors='ignore') as file:
         time_arr_csv = []
         value_arr_csv = []
 
@@ -233,7 +234,7 @@ class PressureDataset(Dataset):
     TRAIN = 0
     TEST = 2
 
-    def __init__(self, mode=TRAIN, dataDir="./dataset/for_train/", dataDirTest="./dataset/for_test/",
+    def __init__(self, mode=TRAIN, dataDir="/home/yyc/chenxi/smart_bed_memory/dataset/for_train", dataDirTest="./dataset/for_test/",
                  shuffle=0):
         global removePOffset, pressureNormalization
         """
@@ -288,12 +289,23 @@ class PressureDataset(Dataset):
                 target_data = value['target_data']
                 self.testInputs.append(input_data)
                 self.testTargets.append(target_data)
-
+    
     def __len__(self):
         return self.totalLength
-
+    
     def __getitem__(self, idx):
-        return self.inputs[idx], self.targets[idx]
+        input_data = self.inputs[idx]
+        target_data = self.targets[idx]
+
+        new_input_data = torch.zeros(13, 32, 64)
+
+        for i in range(12):
+            new_input_data[i, :, :] = input_data[i]
+
+        for i in range(8):
+            new_input_data[12, :, i * 8 : (i + 1) * 8] = input_data[12 + i]
+            
+        return new_input_data, target_data
 
     def denormalize(self, np_array):
         denormalized_data = np_array * (self.target_max - self.target_min) + self.target_min
@@ -301,8 +313,8 @@ class PressureDataset(Dataset):
         return denormalized_data
 
     def denormalizeInput(self, inputs_tensor):
-        inputs_tensor.size(1)
-        inputs_tensor[:, -8:, :, :] += 18
+        last_channel_index = inputs_tensor.size(1) - 1
+        inputs_tensor[:, last_channel_index:, :, :] += 18
         return inputs_tensor
 
 

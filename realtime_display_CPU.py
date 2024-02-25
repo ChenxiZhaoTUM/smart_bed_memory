@@ -71,7 +71,7 @@ def deal_with_txt_files(file_path):
             if len(values) != 20:
                 continue
 
-            time_str = line[time_start + 1: time_end]
+            time_str = line[time_start + 1:time_end]
             time_str = re.sub(r'[^a-zA-Z0-9:.]', '', time_str)
             time_arr_txt.append(time_str)
 

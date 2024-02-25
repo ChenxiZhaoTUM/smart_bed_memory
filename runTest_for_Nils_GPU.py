@@ -10,16 +10,16 @@ import utils
 
 ##########################
 
-prefix = "Nils_for_pressure_7"
+prefix = "expo3_Nils_for_pressure_1"
 if len(sys.argv) > 1:
     prefix = sys.argv[1]
     print("Output prefix: {}".format(prefix))
 
 suffix = ""
 lf = "./" + prefix + "_testout{}.txt".format(suffix)
-utils.makeDirs(["test_results_for_model7"])
+utils.makeDirs(["test_results_for_model01"])
 
-expo = 4
+expo = 3
 dataset = dp.PressureDataset(mode=dp.PressureDataset.TEST, dataDirTest="/home/yyc/chenxi/smart_bed_memory/dataset/for_test")
 testLoader = DataLoader(dataset, batch_size=1, shuffle=False)
 print("Test batches: {}".format(len(testLoader)))
@@ -37,7 +37,7 @@ outputs_dn = outputs_dn.cuda()
 netG = OnlyPressureConvNet(channelExponent=expo)
 print(netG)
 
-doLoad = "/home/yyc/chenxi/Nils_for_pressure_7_modelG"
+doLoad = "/home/yyc/chenxi/expo3_Nils_for_pressure_1_modelG"
 if len(doLoad) > 0:
     netG.load_state_dict(torch.load(doLoad))
     print("Loaded model " + doLoad)
@@ -90,8 +90,8 @@ for i, testdata in enumerate(testLoader, 0):
     lossL1_dn = criterionL1(outputs_dn, targets_dn)
     L1val_dn_accum += lossL1_dn.item()
 
-    os.chdir("./test_results_for_model7/")
-    utils.imageOut("%04d" % (i), inputs_cpu, outputs_denormalized, targets_denormalized, dataset.target_max, dataset.target_min,
+    os.chdir("./test_results_for_model01/")
+    utils.imageOut("%04d" % (i), inputs_denormalized[0], outputs_denormalized, targets_denormalized, dataset.target_max, dataset.target_min,
                                saveTargets=True)
     os.chdir("../")
 

@@ -10,6 +10,8 @@ from GeneratorNet import weights_init, DeepConvTransposeNet2
 import data_preprocessing as dp
 import utils
 
+print("Current working directory:", os.getcwd())
+
 # print(torch.cuda.is_available())
 
 ######## Settings ########
