@@ -120,7 +120,7 @@ for epoch in range(epochs):
         targets_denormalized = data.denormalize(targets_cpu.cpu().numpy())
         outputs_denormalized = data.denormalize(gen_out_cpu)
 
-        if lossL1viz < 0.01:
+        if lossL1viz < 0.1:
             for j in range(batch_size):
                 utils.makeDirs(["train_results"])
                 utils.imageOut("train_results/epoch{}_{}_{}".format(epoch, i, j), inputs_denormalized[j],

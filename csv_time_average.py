@@ -136,7 +136,8 @@ def dynamic_pic(value_arr):
     image = np.reshape(value_arr[0], (32, 64))
     image = np.flip(image, axis=1)
     image = np.flip(image, axis=0)
-    im = ax.imshow(image, cmap='jet', interpolation='bilinear', norm=colors.Normalize(vmin=0, vmax=1))
+    # im = ax.imshow(image, cmap='jet', interpolation='bilinear', norm=colors.Normalize(vmin=0, vmax=1))
+    im = ax.imshow(image, cmap='jet', interpolation='bilinear')
     ax.invert_xaxis()
     ax.invert_yaxis()
     ax.axis('off')
@@ -195,7 +196,8 @@ for file_name in file_names:
                 value_arr.append(value_per_time)
 
             ######## do normalization to [0, 1] #######
-            value_arr = pressure_norm(value_arr)
+            #value_arr = pressure_norm(value_arr)
+
             # print(time_arr)  # test code
             # print(value_arr)  # test code
             # print(len(time_arr))  # test code

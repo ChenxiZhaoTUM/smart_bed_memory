@@ -5,16 +5,13 @@ import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 import torch.optim as optim
-
-from GeneratorNet import weights_init, DeepConvTransposeNet2
-import data_preprocessing as dp
+from GeneratorNet import weights_init, OnlyPressureConvNet
+import data_preprocessing_for_Nils as dp
 import utils
-
-# print(torch.cuda.is_available())
 
 ######## Settings ########
 # number of training iterations
-iterations = 100000000
+iterations = 1000000000
 # batch size
 batch_size = 100
 # learning rate, generator
@@ -60,7 +57,7 @@ print("Validation batches: {}".format(len(valiLoader)))
 
 # setup training
 epochs = int(iterations / len(trainLoader) + 0.5)
-netG = DeepConvTransposeNet2()
+netG = OnlyPressureConvNet(channelExponent=expo, dropout=dropout)
 print(netG)  # print full net
 model_parameters = filter(lambda p: p.requires_grad, netG.parameters())
 params = sum([np.prod(p.size()) for p in model_parameters])
@@ -69,18 +66,15 @@ print()
 
 netG.apply(weights_init)
 if len(doLoad) > 0:
-    netG.load_state_dict(torch.load(doLoad))
+    # netG.load_state_dict(torch.load(doLoad))
+    netG.load_state_dict(torch.load(doLoad, map_location=torch.device('cpu')))
     print("Loaded model " + doLoad)
-netG.cuda()
 
 criterionL1 = nn.L1Loss()
-criterionL1.cuda()
 optimizerG = optim.Adam(netG.parameters(), lr=lrG, betas=(0.5, 0.999), weight_decay=0.0)
 
-inputs = Variable(torch.FloatTensor(batch_size, 20, 1, 1))
+inputs = Variable(torch.FloatTensor(batch_size, 13, 32, 64))
 targets = Variable(torch.FloatTensor(batch_size, 1, 32, 64))
-inputs = inputs.cuda()
-targets = targets.cuda()
 
 ##########################
 # with open('output.txt', 'w') as file:
@@ -92,13 +86,20 @@ for epoch in range(epochs):
     netG.train()
     L1_accum = 0.0
     for i, traindata in enumerate(trainLoader, 0):
+        print(i)
         inputs_cpu, targets_cpu = traindata
-        inputs_cpu = inputs_cpu.unsqueeze(2).unsqueeze(3)
+
+        # print(inputs_cpu.size())
+
+        # print(type(targets_cpu))
+
+        # inputs_cpu = inputs_cpu.unsqueeze(1).unsqueeze(2)
         targets_cpu = targets_cpu.unsqueeze(1)
-        inputs_cpu = inputs_cpu.float().cuda()
-        targets_cpu = targets_cpu.float().cuda()
-        inputs.data.resize_as_(inputs_cpu).copy_(inputs_cpu)
-        targets.data.resize_as_(targets_cpu).copy_(targets_cpu)
+
+        # print(targets_cpu.size())
+
+        inputs.data.copy_(inputs_cpu.float())
+        targets.data.copy_(targets_cpu.float())
 
         # compute LR decay
         if decayLr:
@@ -128,7 +129,7 @@ for epoch in range(epochs):
         targets_denormalized = data.denormalize(targets_cpu.cpu().numpy())
         outputs_denormalized = data.denormalize(gen_out_cpu)
 
-        if lossL1viz < 0.018:
+        if lossL1viz < 0.013:
             for j in range(batch_size):
                 utils.makeDirs(["train_results"])
                 utils.imageOut("train_results/epoch{}_{}_{}".format(epoch, i, j), inputs_denormalized[j],
@@ -140,8 +141,9 @@ for epoch in range(epochs):
     L1val_accum = 0.0
     for i, validata in enumerate(valiLoader, 0):
         inputs_cpu, targets_cpu = validata
-        inputs_cpu = inputs_cpu.unsqueeze(2).unsqueeze(3)
+        # inputs_cpu = inputs_cpu.unsqueeze(2).unsqueeze(3)
         targets_cpu = targets_cpu.unsqueeze(1)
+
         inputs.data.copy_(inputs_cpu.float())
         targets.data.copy_(targets_cpu.float())
 

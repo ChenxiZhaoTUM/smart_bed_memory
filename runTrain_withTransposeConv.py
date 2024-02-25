@@ -5,16 +5,15 @@ import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 import torch.optim as optim
-
 from GeneratorNet import weights_init, DeepConvTransposeNet2
 import data_preprocessing as dp
 import utils
 
 ######## Settings ########
 # number of training iterations
-iterations = 100000000000
+iterations = 1000000000
 # batch size
-batch_size = 50
+batch_size = 100
 # learning rate, generator
 lrG = 0.0006
 # decay learning rate?
@@ -120,7 +119,7 @@ for epoch in range(epochs):
         targets_denormalized = data.denormalize(targets_cpu.cpu().numpy())
         outputs_denormalized = data.denormalize(gen_out_cpu)
 
-        if lossL1viz < 0.022:
+        if lossL1viz < 0.013:
             for j in range(batch_size):
                 utils.makeDirs(["train_results"])
                 utils.imageOut("train_results/epoch{}_{}_{}".format(epoch, i, j), inputs_denormalized[j],

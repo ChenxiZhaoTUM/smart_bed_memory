@@ -16,14 +16,25 @@ def parse_time_string(time_string):
 
 
 def format_time_string(time):
-    return time.strftime("%H:%M:%S")
+    return time.strftime("%H:%M:%S.%f")
 
 
-def average_by_sec(time_arr, value_arr):
+def round_to_nearest_half_second_down(time_obj):
+
+    if time_obj.microsecond >= 500000:
+        time_obj = time_obj.replace(microsecond=500000)
+    else:
+        time_obj = time_obj.replace(microsecond=0)
+
+    return time_obj
+
+
+def average_by_half_second(time_arr, value_arr):
     time_objs = [parse_time_string(time_str) for time_str in time_arr]
+
+    time_objs = [round_to_nearest_half_second_down(time_obj) for time_obj in time_objs]
     time_objs = [format_time_string(time_obj) for time_obj in time_objs]
 
-    # create dictionary to save time and corresponding values
     sum_dict = {}
     count_dict = {}
     new_time_arr = []
@@ -40,16 +51,13 @@ def average_by_sec(time_arr, value_arr):
             new_time_arr.append(new_time_str)
 
     avg_value_arr = [sum_dict[new_time_str] / count_dict[new_time_str] for new_time_str in new_time_arr]
-    avg_value_arr = np.array(avg_value_arr)
-
-    new_time_arr = np.array(new_time_arr)
 
     return new_time_arr, avg_value_arr
 
 
 ######## save data in arrays ########
 def deal_with_txt_files(file_path):
-    with open(file_path, 'r',  errors='ignore') as file:
+    with open(file_path, 'r') as file:
         lines = file.readlines()
 
         time_arr_txt = []
@@ -84,7 +92,7 @@ def deal_with_txt_files(file_path):
 
 
 def deal_with_csv_files(csv_file_path):
-    with open(csv_file_path, 'r', errors='ignore') as file:
+    with open(csv_file_path, 'r') as file:
         time_arr_csv = []
         value_arr_csv = []
 
@@ -147,8 +155,8 @@ def save_data_from_files(data, isTest=False, shuffle=2):
             time_arr_csv, value_arr_csv = deal_with_csv_files(csv_file_path)
 
             ######## do time average #######
-            avg_time_arr_txt, avg_value_arr_txt = average_by_sec(time_arr_txt, value_arr_txt)
-            avg_time_arr_csv, avg_value_arr_csv = average_by_sec(time_arr_csv, value_arr_csv)
+            avg_time_arr_txt, avg_value_arr_txt = average_by_half_second(time_arr_txt, value_arr_txt)
+            avg_time_arr_csv, avg_value_arr_csv = average_by_half_second(time_arr_csv, value_arr_csv)
 
             avg_value_arr_csv = reshape_output_value(avg_value_arr_csv)
             # print(avg_value_arr_csv.shape)  # test code
@@ -250,7 +258,6 @@ class PressureDataset(Dataset):
 
         self.totalLength = len(self.common_data)
         if not self.mode == self.TEST:
-            # split for train/validation sets (80/20) , max 400
             targetLength = self.totalLength
 
             self.inputs = []

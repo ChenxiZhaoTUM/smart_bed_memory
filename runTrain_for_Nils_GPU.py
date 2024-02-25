@@ -6,9 +6,11 @@ from torch.autograd import Variable
 from torch.utils.data import DataLoader
 import torch.optim as optim
 
-from GeneratorNet import weights_init, DeepConvTransposeNet2
-import data_preprocessing as dp
+from GeneratorNet import weights_init, OnlyPressureConvNet
+import data_preprocessing_for_Nils as dp
 import utils
+
+print("Current working directory:", os.getcwd())
 
 # print(torch.cuda.is_available())
 
@@ -30,13 +32,13 @@ saveL1 = True
 
 ##########################
 
-prefix = ""
+prefix = "Nils_for_pressure_7"
 if len(sys.argv) > 1:
     prefix = sys.argv[1]
     print("Output prefix: {}".format(prefix))
 
 dropout = 0
-doLoad = ""  # optional, path to pre-trained model
+doLoad = "/home/yyc/chenxi/Nils_for_pressure_6_modelG"  # optional, path to pre-trained model
 
 print("LR: {}".format(lrG))
 print("LR decay: {}".format(decayLr))
@@ -60,7 +62,7 @@ print("Validation batches: {}".format(len(valiLoader)))
 
 # setup training
 epochs = int(iterations / len(trainLoader) + 0.5)
-netG = DeepConvTransposeNet2()
+netG = OnlyPressureConvNet(channelExponent=expo, dropout=dropout)
 print(netG)  # print full net
 model_parameters = filter(lambda p: p.requires_grad, netG.parameters())
 params = sum([np.prod(p.size()) for p in model_parameters])
@@ -77,7 +79,7 @@ criterionL1 = nn.L1Loss()
 criterionL1.cuda()
 optimizerG = optim.Adam(netG.parameters(), lr=lrG, betas=(0.5, 0.999), weight_decay=0.0)
 
-inputs = Variable(torch.FloatTensor(batch_size, 20, 1, 1))
+inputs = Variable(torch.FloatTensor(batch_size, 13, 32, 64))
 targets = Variable(torch.FloatTensor(batch_size, 1, 32, 64))
 inputs = inputs.cuda()
 targets = targets.cuda()
@@ -93,7 +95,7 @@ for epoch in range(epochs):
     L1_accum = 0.0
     for i, traindata in enumerate(trainLoader, 0):
         inputs_cpu, targets_cpu = traindata
-        inputs_cpu = inputs_cpu.unsqueeze(2).unsqueeze(3)
+        # inputs_cpu = inputs_cpu.unsqueeze(2).unsqueeze(3)
         targets_cpu = targets_cpu.unsqueeze(1)
         inputs_cpu = inputs_cpu.float().cuda()
         targets_cpu = targets_cpu.float().cuda()
@@ -128,19 +130,23 @@ for epoch in range(epochs):
         targets_denormalized = data.denormalize(targets_cpu.cpu().numpy())
         outputs_denormalized = data.denormalize(gen_out_cpu)
 
-        if lossL1viz < 0.018:
+        if lossL1viz < 0.0053:
             for j in range(batch_size):
-                utils.makeDirs(["train_results"])
-                utils.imageOut("train_results/epoch{}_{}_{}".format(epoch, i, j), inputs_denormalized[j],
+                utils.makeDirs(["train_results_last2batch_for_Nils_0.0053"])
+                utils.imageOut("train_results_last2batch_for_Nils_0.0053/epoch{}_{}_{}".format(epoch, i, j), inputs_denormalized[j],
                                outputs_denormalized[j], targets_denormalized[j], data.target_max, data.target_min,
                                saveTargets=True)
+            torch.save(netG.state_dict(), prefix + "modelG")
+
+        if lossL1viz < 0.006:
+            torch.save(netG.state_dict(), prefix + "modelG")
 
     # validation
     netG.eval()
     L1val_accum = 0.0
     for i, validata in enumerate(valiLoader, 0):
         inputs_cpu, targets_cpu = validata
-        inputs_cpu = inputs_cpu.unsqueeze(2).unsqueeze(3)
+        # inputs_cpu = inputs_cpu.unsqueeze(2).unsqueeze(3)
         targets_cpu = targets_cpu.unsqueeze(1)
         inputs.data.copy_(inputs_cpu.float())
         targets.data.copy_(targets_cpu.float())
@@ -195,4 +201,4 @@ for epoch in range(epochs):
         utils.log(prefix + "L1.txt", "{} ".format(L1_accum), False)
         # utils.log(prefix + "L1val.txt", "{} ".format(L1val_accum), False)
 
-torch.save(netG.state_dict(), prefix + "modelG")
+# torch.save(netG.state_dict(), prefix + "modelG")
